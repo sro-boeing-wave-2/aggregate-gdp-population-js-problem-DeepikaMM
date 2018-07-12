@@ -13,7 +13,7 @@ describe('Aggregate GDP & Population', () => {
   it('Should be able to aggregate GDP & Population', async () => {
     const filePath = path.join(process.cwd(), 'data/datafile.csv');
     await aggregate(filePath);
-    console.log("Aggregated the code");
+    console.log('Aggregated the code');
     const absActualOutputPath = path.join(process.cwd(), 'output/output.json');
     const absExpectedOutputPath = path.join(process.cwd(), 'test/expected-output.json');
     const expectedOutput = JSON.parse(fs.readFileSync(absExpectedOutputPath));

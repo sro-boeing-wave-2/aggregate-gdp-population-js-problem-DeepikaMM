@@ -46,8 +46,9 @@ const aggregate = (filePath) => {
       POPULATION_2012: parseFloat(populationMap.get(key)),
     };
   });
-
-  fs.writeFileSync(outputfile, JSON.stringify(jasonFormatString));
+  console.log('Writing JSON Data');
+  console.log(jasonFormatString);
+  fs.writeFileSync(outputfile, JSON.stringify(jasonFormatString, 2, 2));
 };
 
 module.exports = aggregate;
