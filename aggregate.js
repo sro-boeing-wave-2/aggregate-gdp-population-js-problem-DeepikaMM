@@ -16,7 +16,7 @@ const aggregate = (filePath) => {
   const readTXT = fs.readFileSync('data.txt', 'utf8');
   console.log(readTXT);
   console.log('Listing Files', fs.readdirSync(__dirname));
-  const formatReadTXT = readTXT.split('\r\n');
+  const formatReadTXT = readTXT.split('\n');
   console.log(formatReadTXT);
   for (let i = 0; i < formatReadTXT.length - 1; i += 1) {
     const splitData = formatReadTXT[i].split(',');
