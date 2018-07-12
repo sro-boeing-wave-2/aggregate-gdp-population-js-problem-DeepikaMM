@@ -17,6 +17,7 @@ const aggregate = (filePath) => {
   console.log(readTXT);
   console.log('Listing Files', fs.readdirSync(__dirname));
   const formatReadTXT = readTXT.split('\r\n');
+  console.log(formatReadTXT);
   for (let i = 0; i < formatReadTXT.length - 1; i += 1) {
     const splitData = formatReadTXT[i].split(',');
     extractMap.set(splitData[0], splitData[1]);
@@ -26,6 +27,7 @@ const aggregate = (filePath) => {
     const countryInfo = mapData.get(key);
     continentMapper.set(key, [countryInfo[0], countryInfo[1], value]);
   });
+  console.log(continentMapper);
   const populationMap = new Map();
   const gdp = new Map();
   continentMapper.forEach((value) => {
@@ -41,16 +43,15 @@ const aggregate = (filePath) => {
     }
   });
   const outputfile = 'output/output.json';
-  const jasonFormatString = {};
+  const aggregatedData = {};
   gdp.forEach((value, key) => {
-    jasonFormatString[key] = {
+    aggregatedData[key] = {
       GDP_2012: parseFloat(value),
       POPULATION_2012: parseFloat(populationMap.get(key)),
     };
   });
   console.log('Writing JSON Data');
-  console.log(jasonFormatString);
-  fs.writeFileSync(outputfile, JSON.stringify(jasonFormatString, 2, 2));
+  fs.writeFileSync(outputfile, JSON.stringify(aggregatedData, 2, 2));
 };
 
 module.exports = aggregate;
