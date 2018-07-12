@@ -7,17 +7,14 @@ const fs = require('fs');
 const aggregate = (filePath) => {
   const mapData = new Map();
   const readCSV = fs.readFileSync(filePath, 'utf8');
-  const formatReadCSV = readCSV.split('\r\n');
+  const formatReadCSV = readCSV.split('\n');
   for (let i = 1; i < formatReadCSV.length - 1; i += 1) {
     const data = formatReadCSV[i].split(',');
     mapData.set(data[0].split('"')[1], [data[4].split('"')[1], data[7].split('"')[1]]);
   }
   const extractMap = new Map();
   const readTXT = fs.readFileSync('data.txt', 'utf8');
-  console.log(readTXT);
-  console.log('Listing Files', fs.readdirSync(__dirname));
   const formatReadTXT = readTXT.split('\n');
-  console.log(formatReadTXT);
   for (let i = 0; i < formatReadTXT.length - 1; i += 1) {
     const splitData = formatReadTXT[i].split(',');
     extractMap.set(splitData[0], splitData[1]);
@@ -27,7 +24,6 @@ const aggregate = (filePath) => {
     const countryInfo = mapData.get(key);
     continentMapper.set(key, [countryInfo[0], countryInfo[1], value]);
   });
-  console.log(continentMapper);
   const populationMap = new Map();
   const gdp = new Map();
   continentMapper.forEach((value) => {
@@ -50,7 +46,6 @@ const aggregate = (filePath) => {
       POPULATION_2012: parseFloat(populationMap.get(key)),
     };
   });
-  console.log('Writing JSON Data');
   fs.writeFileSync(outputfile, JSON.stringify(aggregatedData, 2, 2));
 };
 

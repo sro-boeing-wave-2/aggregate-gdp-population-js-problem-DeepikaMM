@@ -13,13 +13,13 @@ describe('Aggregate GDP & Population', () => {
   it('Should be able to aggregate GDP & Population', async () => {
     const filePath = path.join(process.cwd(), 'data/datafile.csv');
     await aggregate(filePath);
-    console.log('Aggregated the code');
     const absActualOutputPath = path.join(process.cwd(), 'output/output.json');
     const absExpectedOutputPath = path.join(process.cwd(), 'test/expected-output.json');
     const expectedOutput = JSON.parse(fs.readFileSync(absExpectedOutputPath));
     should(fs.existsSync(absActualOutputPath)).be.exactly(true, 'Expected the file output/output.json to be present');
     const actualOutput = JSON.parse(fs.readFileSync(absActualOutputPath, 'utf8'));
-    console.log('Actual Output', actualOutput);
+    console.log(expectedOutput);
+    console.log(actualOutput);
     should.exist(actualOutput, 'Actual output cannot be null');
     actualOutput.should.be.an.instanceOf(Object, 'Expected output to be of type object');
     // Actual Output should not be empty
