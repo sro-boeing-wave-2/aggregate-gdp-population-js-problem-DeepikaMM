@@ -24,13 +24,13 @@ const aggregate = (filePath) => {
     const countryInfo = mapData.get(key);
     continentMapper.set(key, [countryInfo[0], countryInfo[1], value]);
   });
-  const population = new Map();
+  const populationMap = new Map();
   const gdp = new Map();
   continentMapper.forEach((value) => {
-    if (population.has(value[2])) {
-      population.set(value[2], parseFloat(population.get(value[2])) + parseFloat(value[0]));
+    if (populationMap.has(value[2])) {
+      populationMap.set(value[2], parseFloat(populationMap.get(value[2])) + parseFloat(value[0]));
     } else {
-      population.set(value[2], value[0]);
+      populationMap.set(value[2], value[0]);
     }
     if (gdp.has(value[2])) {
       gdp.set(value[2], (parseFloat(gdp.get(value[2])) + parseFloat(value[1])));
@@ -43,7 +43,7 @@ const aggregate = (filePath) => {
   gdp.forEach((value, key) => {
     jasonFormatString[key] = {
       GDP_2012: parseFloat(value),
-      POPULATION_2012: parseFloat(population.get(key)),
+      POPULATION_2012: parseFloat(populationMap.get(key)),
     };
   });
 
