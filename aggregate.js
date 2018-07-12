@@ -48,5 +48,6 @@ const aggregate = (filePath) => {
   });
 
   fs.writeFileSync(outputfile, JSON.stringify(jasonFormatString));
+  return jasonFormatString;
 };
 module.exports = aggregate;
