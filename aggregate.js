@@ -14,6 +14,7 @@ const aggregate = (filePath) => {
   }
   const extractMap = new Map();
   const readTXT = fs.readFileSync('data.txt', 'utf8');
+  console.log(readTXT);
   console.log('Listing Files', fs.readdirSync(__dirname));
   const formatReadTXT = readTXT.split('\r\n');
   for (let i = 0; i < formatReadTXT.length - 1; i += 1) {
