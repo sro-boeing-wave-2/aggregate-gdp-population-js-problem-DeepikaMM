@@ -6,13 +6,7 @@ const fs = require('fs');
 
 const readDataFile = filePath => new Promise((resolve, reject) => {
   fs.readFile(filePath, 'utf8', (err, readCSV) => {
-    const mapData = new Map();
-    const formatReadCSV = readCSV.split('\n');
-    for (let i = 1; i < formatReadCSV.length - 1; i += 1) {
-      const data = formatReadCSV[i].split(',');
-      mapData.set(data[0].split('"')[1], [data[4].split('"')[1], data[7].split('"')[1]]);
-    }
-    resolve(mapData);
+    resolve(readCSV);
     if (err) reject(err);
   });
 });
@@ -30,34 +24,34 @@ const readMapFile = () => new Promise((resolve1, reject1) => {
 });
 const aggregate = filePath => new Promise((resolve, reject) => {
   Promise.all([readDataFile(filePath), readMapFile()]).then((values) => {
-    const continentMapper = new Map();
-    values[1].forEach((value, key) => {
-      const countryInfo = values[0].get(key);
-      continentMapper.set(key, [countryInfo[0], countryInfo[1], value]);
-    });
-    const populationMap = new Map();
-    const gdp = new Map();
-    continentMapper.forEach((value) => {
-      if (populationMap.has(value[2])) {
-        populationMap.set(value[2], parseFloat(populationMap.get(value[2])) + parseFloat(value[0]));
-      } else {
-        populationMap.set(value[2], value[0]);
+    const extractedRows = values[0].replace(/["']+/g, '').split('\n');
+    const headers = extractedRows[0].split(',');
+    const arrayOfObjects = [];
+    let obj;
+    for (let i = 1; i < extractedRows.length - 2; i += 1) {
+      obj = {};
+      const splitExtractedRows = extractedRows[i].split(',');
+      for (let j = 0; j < headers.length; j += 1) {
+        if (j === 0) obj[headers[j]] = splitExtractedRows[j];
+        else obj[headers[j]] = parseFloat(splitExtractedRows[j]);
       }
-      if (gdp.has(value[2])) {
-        gdp.set(value[2], (parseFloat(gdp.get(value[2])) + parseFloat(value[1])));
-      } else {
-        gdp.set(value[2], value[1]);
+      obj.Continent = values[1].get(splitExtractedRows[0]);
+      arrayOfObjects.push(obj);
+    }
+    const creatingResultObject = {};
+    arrayOfObjects.forEach((object) => {
+      try {
+        creatingResultObject[object.Continent].GDP_2012 += object['GDP Billions (US Dollar) - 2012'];
+        creatingResultObject[object.Continent].POPULATION_2012 += object['Population (Millions) - 2012'];
+      } catch (e) {
+        creatingResultObject[object.Continent] = {
+          GDP_2012: object['GDP Billions (US Dollar) - 2012'],
+          POPULATION_2012: object['Population (Millions) - 2012'],
+        };
       }
     });
     const outputfile = 'output/output.json';
-    const aggregatedData = {};
-    gdp.forEach((value, key) => {
-      aggregatedData[key] = {
-        GDP_2012: parseFloat(value),
-        POPULATION_2012: parseFloat(populationMap.get(key)),
-      };
-    });
-    fs.writeFile(outputfile, JSON.stringify(aggregatedData), () => resolve());
+    fs.writeFile(outputfile, JSON.stringify(creatingResultObject), () => resolve());
   }, err => reject(err));
 });
 module.exports = aggregate;
