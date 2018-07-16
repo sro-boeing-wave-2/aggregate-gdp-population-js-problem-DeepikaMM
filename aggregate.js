@@ -5,53 +5,40 @@
 const fs = require('fs');
 
 const readDataFile = filePath => new Promise((resolve, reject) => {
-  fs.readFile(filePath, 'utf8', (err, readCSV) => {
-    resolve(readCSV);
+  fs.readFile(filePath, 'utf8', (err, resultFile) => {
+    resolve(resultFile);
     if (err) reject(err);
   });
 });
-const readMapFile = () => new Promise((resolve1, reject1) => {
-  const extractMap = new Map();
-  fs.readFile('data.txt', 'utf8', (err, readTXT) => {
-    const formatReadTXT = readTXT.split('\n');
-    for (let i = 0; i < formatReadTXT.length - 1; i += 1) {
-      const splitData = formatReadTXT[i].split(',');
-      extractMap.set(splitData[0], splitData[1]);
-    }
-    resolve1(extractMap);
-    if (err) reject1(err);
-  });
-});
-const aggregate = filePath => new Promise((resolve, reject) => {
-  Promise.all([readDataFile(filePath), readMapFile()]).then((values) => {
-    const extractedRows = values[0].replace(/["']+/g, '').split('\n');
-    const headers = extractedRows[0].split(',');
-    const arrayOfObjects = [];
-    let obj;
-    for (let i = 1; i < extractedRows.length - 2; i += 1) {
-      obj = {};
-      const splitExtractedRows = extractedRows[i].split(',');
-      for (let j = 0; j < headers.length; j += 1) {
-        if (j === 0) obj[headers[j]] = splitExtractedRows[j];
-        else obj[headers[j]] = parseFloat(splitExtractedRows[j]);
-      }
-      obj.Continent = values[1].get(splitExtractedRows[0]);
-      arrayOfObjects.push(obj);
-    }
-    const creatingResultObject = {};
-    arrayOfObjects.forEach((object) => {
+const aggregate = filePath => new Promise((resolve) => {
+  Promise.all([readDataFile(filePath), readDataFile('./country-continent-map.json')]).then((values) => {
+    const headers = values[0].replace(/["']+/g, '').split('\n')[0];
+    const headersIndex = headers.split(',');
+    const countryIndex = headersIndex.indexOf('Country Name');
+    const gdpIndex = headersIndex.indexOf('GDP Billions (US Dollar) - 2012');
+    const populationIndex = headersIndex.indexOf('Population (Millions) - 2012');
+    const completeDataSplit = (values[0].split('\n'));
+    const jsonFormat = JSON.parse(values[1]);
+    const finalResultObject = {};
+    completeDataSplit.forEach((element) => {
+      const splitEle = element.replace(/["']+/g, '').split(',');
+      const continentName = jsonFormat[splitEle[countryIndex]];
       try {
-        creatingResultObject[object.Continent].GDP_2012 += object['GDP Billions (US Dollar) - 2012'];
-        creatingResultObject[object.Continent].POPULATION_2012 += object['Population (Millions) - 2012'];
+        if (continentName !== undefined) {
+          finalResultObject[continentName].GDP_2012 += parseFloat(splitEle[gdpIndex]);
+          finalResultObject[continentName].POPULATION_2012 += parseFloat(splitEle[populationIndex]);
+        }
       } catch (e) {
-        creatingResultObject[object.Continent] = {
-          GDP_2012: object['GDP Billions (US Dollar) - 2012'],
-          POPULATION_2012: object['Population (Millions) - 2012'],
-        };
+        if (continentName !== undefined) {
+          finalResultObject[continentName] = {
+            GDP_2012: parseFloat(splitEle[gdpIndex]),
+            POPULATION_2012: parseFloat(splitEle[populationIndex]),
+          };
+        }
       }
     });
     const outputfile = 'output/output.json';
-    fs.writeFile(outputfile, JSON.stringify(creatingResultObject), () => resolve());
-  }, err => reject(err));
+    fs.writeFile(outputfile, JSON.stringify(finalResultObject), () => resolve());
+  });
 });
 module.exports = aggregate;
