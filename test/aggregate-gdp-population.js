@@ -18,13 +18,8 @@ describe('Aggregate GDP & Population', () => {
     const expectedOutput = JSON.parse(fs.readFileSync(absExpectedOutputPath));
     should(fs.existsSync(absActualOutputPath)).be.exactly(true, 'Expected the file output/output.json to be present');
     const actualOutput = JSON.parse(fs.readFileSync(absActualOutputPath, 'utf8'));
-    console.log(expectedOutput);
-    console.log(actualOutput);
     should.exist(actualOutput, 'Actual output cannot be null');
     actualOutput.should.be.an.instanceOf(Object, 'Expected output to be of type object');
-    // Actual Output should not be empty
-    // TODO: Have to find a way to give descriptive messages
-    // for objects which are empty
     actualOutput.should.not.be.empty('Expected output cannot be empty');
     actualOutput.should.eql(expectedOutput, 'The actual output doesn\'t matches with the expected output');
   });
